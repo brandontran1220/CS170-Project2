@@ -15,6 +15,12 @@ def load_dataset(filename):
     
     return class_name, features
 
+def euclidean_distance(first, second, features):
+    distance = 0.0
+    for i in features: ## iterate through the features
+        distance += (first[i] - second[i]) ** 2 ## calculate the squared difference for each feature and sum them up
+    return distance ** 0.5 ## return the Euclidean distance
+
 def main():
     print("Welcome to Brandon's Feature Selection Algorithm")
     file_name = input("Type in the name of the file to test: ").strip()
