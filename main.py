@@ -48,6 +48,11 @@ def main():
     file_name = input("Type in the name of the file to test: ").strip()
     class_name, features = load_dataset(file_name) ## load the dataset from the specified file
 
+    print ("\nType the number of the algorithm you want to run.")
+    print ("1. Forward Selection")
+    print ("2. Backward Elimination")
+    choice = input("Enter your choice: ").strip()
+
     cnt_instances = len(class_name) ## the number of instances is the number of rows in the dataset
     cnt_features = len(features[0]) ## the number of features is the number of columns in the dataset (excluding the class name)
 
