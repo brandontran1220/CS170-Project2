@@ -1,3 +1,5 @@
+import time
+
 def load_dataset(filename):
     features = []
     class_name = []
@@ -22,26 +24,27 @@ def euclidean_distance(first, second, feature_set):
     return distance ** 0.5 ## return the Euclidean distance
 
 def leave_one_out(features, class_name, feature_set):
-    num_correct = 0
+    number_correctly_classified = 0
 
     for i in range(len(features)): ## iterate through each instance in the dataset
-        nearest_neighbor = None
-        nearest_distance = float('inf')
+        object_to_classify = features[i]
+        label_object_to_classify = class_name[i]
+        nearest_neighbor_distance = float('inf')
+        nearest_neighbor_label = None
 
-        for j in range(len(features)): ## iterate through the dataset again to find the nearest neighbor
-            if i == j:
+        for k in range(len(features)): ## iterate through the dataset again to find the nearest neighbor
+            if i == k:
                 continue
             
-            distance = euclidean_distance(features[i], features[j], feature_set) ## calculate the distance between the two features
+            distance = euclidean_distance(object_to_classify, features[k], feature_set) ## calculate the distance between the two features
 
-            if distance < nearest_distance: ## if this instance is closer than the previous nearest neighbor, update the nearest neighbor and distance
-                nearest_neighbor = j
-                nearest_distance = distance
-        
-        if class_name[i] == class_name[nearest_neighbor]: ## increment number of correct classifications if the nearest neighbor has the same class name as the current instance
-            num_correct += 1
+            if distance < nearest_neighbor_distance: ## if this instance is closer than the previous nearest neighbor, update the nearest neighbor and distance
+                nearest_neighbor_distance = distance
+                nearest_neighbor_label = class_name[k]
+        if label_object_to_classify == nearest_neighbor_label: ## increment number of correct classifications if the nearest neighbor has the same class name as the current instance
+            number_correctly_classified += 1
 
-    return num_correct / len(features) ## return the accuracy as the percentage of correct classifications 
+    return number_correctly_classified / len(features) ## return the accuracy as the percentage of correct classifications 
 
 def forward_selection(features, class_name, cnt_features):
     current_features = [] ## start with an empty set of features for forward selection
@@ -130,12 +133,17 @@ def main():
     print(f'Running nearest neighbor with all {cnt_features} features, using "leave-one-out" evaluation, I get an accuracy of {accuracy * 100:.1f}%')
 
     if choice == '1': ## Choose Forward Selection
+        start_time = time.perf_counter()
         best_features, best_accuracy = forward_selection(features, class_name, cnt_features)
+        elapsed_time = time.perf_counter() - start_time
             
     elif choice == '2': ## Choose Backward Elimination
+        start_time = time.perf_counter()
         best_features, best_accuracy = backward_elimination(features, class_name, cnt_features)
+        elapsed_time = time.perf_counter() - start_time
         
     print(f"\nFinished search!! The best feature subset is {best_features}, which has an accuracy of {best_accuracy * 100:.1f}%")
+    print(f"Total time: {elapsed_time:.2f} seconds")
 
 if __name__ == "__main__":
     main()
