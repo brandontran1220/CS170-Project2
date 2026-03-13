@@ -38,7 +38,7 @@ def leave_one_out(features, class_name, feature_set):
                 nearest_neighbor = j
                 nearest_distance = distance
         
-        if class_name[i] == class_name[nearest_neighbor]: ## Increment number of correct classifications if the nearest neighbor has the same class name as the current instance
+        if class_name[i] == class_name[nearest_neighbor]: ## increment number of correct classifications if the nearest neighbor has the same class name as the current instance
             num_correct += 1
 
     return num_correct / len(features) ## return the accuracy as the percentage of correct classifications 
@@ -74,9 +74,39 @@ def forward_selection(features, class_name, cnt_features):
             best_features = current_features.copy()
             best_accuracy = best_temp_accuracy
         else:
-            print("(Warning, Accuracy has decreased! Continuing search in case of local maxima)")
+            print("(Warning, Accuracy has decreased! Continuing search in case of local maxima)\n")
 
-        print()
+    return best_features, best_accuracy
+
+def backward_elimination(features, class_name, cnt_features):
+    current_features = list(range(1, cnt_features + 1)) ## start with all features for backward elimination
+    best_features = current_features.copy()
+    best_accuracy = leave_one_out(features, class_name, current_features) ## calculate the accuracy with all features
+
+    print("Beginning search.\n")
+
+    for i in range(cnt_features - 1): ## iterate through the number of features to remove
+        target = None
+        best_temp_accuracy = 0.0
+
+        for feature in current_features: ## iterate through the current set of features to find the best one to remove
+            temp_features = [f for f in current_features if f != feature] ## remove the current feature from the set
+            curr_accuracy = leave_one_out(features, class_name, temp_features) ## calculate the accuracy with the current set of features without the removed feature
+
+            print(f"Using feature(s) {temp_features} accuracy is {curr_accuracy * 100:.1f}%")
+
+            if curr_accuracy > best_temp_accuracy: ## update the best temp accuracy and feature to remove
+                best_temp_accuracy = curr_accuracy
+                target = feature
+        
+        current_features.remove(target) ## remove the best feature from the current set of features
+        print(f"Feature set {current_features} was best, accuracy is {best_temp_accuracy * 100:.1f}%")
+
+        if best_temp_accuracy > best_accuracy: ## if the current set has better accuracy than the best so far, update
+            best_features = current_features.copy()
+            best_accuracy = best_temp_accuracy
+        else:
+            print("(Warning, Accuracy has decreased! Continuing search in case of local maxima)\n")
 
     return best_features, best_accuracy
 
@@ -99,12 +129,13 @@ def main():
     accuracy = leave_one_out(features, class_name, all_features) ## calculate the accuracy using all features
     print(f'Running nearest neighbor with all {cnt_features} features, using "leave-one-out" evaluation, I get an accuracy of {accuracy * 100:.1f}%')
 
-    if choice == '1':
+    if choice == '1': ## Choose Forward Selection
         best_features, best_accuracy = forward_selection(features, class_name, cnt_features)
+            
+    elif choice == '2': ## Choose Backward Elimination
+        best_features, best_accuracy = backward_elimination(features, class_name, cnt_features)
         
-        print(f"Finished search!! The best feature subset is {best_features}, which has an accuracy of {best_accuracy * 100:.1f}%")
-    
-    elif choice == '2':
-        pass
+    print(f"\nFinished search!! The best feature subset is {best_features}, which has an accuracy of {best_accuracy * 100:.1f}%")
+
 if __name__ == "__main__":
     main()
