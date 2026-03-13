@@ -43,6 +43,43 @@ def leave_one_out(features, class_name, feature_set):
 
     return num_correct / len(features) ## return the accuracy as the percentage of correct classifications 
 
+def forward_selection(features, class_name, cnt_features):
+    current_features = [] ## start with an empty set of features for forward selection
+    best_features = []
+    best_accuracy = 0.0
+
+    print("Beginning search.\n")
+
+    for _ in range(cnt_features): ## iterate through the number of features to add
+        feature_to_add = None
+        best_temp_accuracy = 0.0
+
+        for feature in range(1, cnt_features + 1): ## iterate through all features to find the best one to add
+            if feature in current_features:
+                continue
+            
+            temp_features = current_features + [feature] ## create a temporary set of features by adding the current feature
+            curr_accuracy = leave_one_out(features, class_name, temp_features) ## calculate the accuracy with the temporary set of features
+
+            print(f"Using feature(s) {temp_features} accuracy is {curr_accuracy * 100:.1f}%")
+
+            if curr_accuracy > best_temp_accuracy: ## update the best temp accuracy and feature
+                best_temp_accuracy = curr_accuracy
+                feature_to_add = feature
+        
+        current_features.append(feature_to_add) ## add the best feature to the current set of features
+        print(f"Feature set {current_features} was best, accuracy is {best_temp_accuracy * 100:.1f}%")
+
+        if best_temp_accuracy > best_accuracy: ## if the current set has better accuracy than the best so far, update
+            best_features = current_features.copy()
+            best_accuracy = best_temp_accuracy
+        else:
+            print("(Warning, Accuracy has decreased! Continuing search in case of local maxima)")
+
+        print()
+
+    return best_features, best_accuracy
+
 def main():
     print("Welcome to Brandon's Feature Selection Algorithm")
     file_name = input("Type in the name of the file to test: ").strip()
@@ -62,5 +99,12 @@ def main():
     accuracy = leave_one_out(features, class_name, all_features) ## calculate the accuracy using all features
     print(f'Running nearest neighbor with all {cnt_features} features, using "leave-one-out" evaluation, I get an accuracy of {accuracy * 100:.1f}%')
 
+    if choice == '1':
+        best_features, best_accuracy = forward_selection(features, class_name, cnt_features)
+        
+        print(f"Finished search!! The best feature subset is {best_features}, which has an accuracy of {best_accuracy * 100:.1f}%")
+    
+    elif choice == '2':
+        pass
 if __name__ == "__main__":
     main()
